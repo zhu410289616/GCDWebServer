@@ -45,31 +45,20 @@
 #import "GCDWebServerErrorResponse.h"
 #import "GCDWebServerFileResponse.h"
 
-#define kXMLParseOptions (XML_PARSE_NONET | XML_PARSE_RECOVER | XML_PARSE_NOBLANKS | XML_PARSE_COMPACT | XML_PARSE_NOWARNING | XML_PARSE_NOERROR)
+inline BOOL _IsMacFinder(GCDWebServerRequest* request) {
+  NSString* userAgentHeader = [request.headers objectForKey:@"User-Agent"];
+  return ([userAgentHeader hasPrefix:@"WebDAVFS/"] || [userAgentHeader hasPrefix:@"WebDAVLib/"]);  // OS X WebDAV client
+}
 
-typedef NS_ENUM(NSInteger, DAVProperties) {
-  kDAVProperty_ResourceType = (1 << 0),
-  kDAVProperty_CreationDate = (1 << 1),
-  kDAVProperty_LastModified = (1 << 2),
-  kDAVProperty_ContentLength = (1 << 3),
-  kDAVAllProperties = kDAVProperty_ResourceType | kDAVProperty_CreationDate | kDAVProperty_LastModified | kDAVProperty_ContentLength
-};
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface GCDWebDAVServer (Methods)
-- (nullable GCDWebServerResponse*)performOPTIONS:(GCDWebServerRequest*)request;
-- (nullable GCDWebServerResponse*)performGET:(GCDWebServerRequest*)request;
-- (nullable GCDWebServerResponse*)performPUT:(GCDWebServerFileRequest*)request;
-- (nullable GCDWebServerResponse*)performDELETE:(GCDWebServerRequest*)request;
-- (nullable GCDWebServerResponse*)performMKCOL:(GCDWebServerDataRequest*)request;
-- (nullable GCDWebServerResponse*)performCOPY:(GCDWebServerRequest*)request isMove:(BOOL)isMove;
-- (nullable GCDWebServerResponse*)performPROPFIND:(GCDWebServerDataRequest*)request;
-- (nullable GCDWebServerResponse*)performLOCK:(GCDWebServerDataRequest*)request;
-- (nullable GCDWebServerResponse*)performUNLOCK:(GCDWebServerRequest*)request;
-@end
-
-NS_ASSUME_NONNULL_END
+inline xmlNodePtr _XMLChildWithName(xmlNodePtr child, const xmlChar* name) {
+  while (child) {
+    if ((child->type == XML_ELEMENT_NODE) && !xmlStrcmp(child->name, name)) {
+      return child;
+    }
+    child = child->next;
+  }
+  return NULL;
+}
 
 @implementation GCDWebDAVServer
 
@@ -162,11 +151,6 @@ NS_ASSUME_NONNULL_END
     return NO;
   }
   return YES;
-}
-
-static inline BOOL _IsMacFinder(GCDWebServerRequest* request) {
-  NSString* userAgentHeader = [request.headers objectForKey:@"User-Agent"];
-  return ([userAgentHeader hasPrefix:@"WebDAVFS/"] || [userAgentHeader hasPrefix:@"WebDAVLib/"]);  // OS X WebDAV client
 }
 
 - (GCDWebServerResponse*)performOPTIONS:(GCDWebServerRequest*)request {
@@ -411,16 +395,6 @@ static inline BOOL _IsMacFinder(GCDWebServerRequest* request) {
   }
 
   return [GCDWebServerResponse responseWithStatusCode:(existing ? kGCDWebServerHTTPStatusCode_NoContent : kGCDWebServerHTTPStatusCode_Created)];
-}
-
-static inline xmlNodePtr _XMLChildWithName(xmlNodePtr child, const xmlChar* name) {
-  while (child) {
-    if ((child->type == XML_ELEMENT_NODE) && !xmlStrcmp(child->name, name)) {
-      return child;
-    }
-    child = child->next;
-  }
-  return NULL;
 }
 
 - (void)_addPropertyResponseForItem:(NSString*)itemPath resource:(NSString*)resourcePath properties:(DAVProperties)properties xmlString:(NSMutableString*)xmlString {
