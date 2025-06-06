@@ -37,11 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 #define kXMLParseOptions (XML_PARSE_NONET | XML_PARSE_RECOVER | XML_PARSE_NOBLANKS | XML_PARSE_COMPACT | XML_PARSE_NOWARNING | XML_PARSE_NOERROR)
 
 typedef NS_ENUM(NSInteger, DAVProperties) {
-  kDAVProperty_ResourceType = (1 << 0),
-  kDAVProperty_CreationDate = (1 << 1),
-  kDAVProperty_LastModified = (1 << 2),
-  kDAVProperty_ContentLength = (1 << 3),
-  kDAVAllProperties = kDAVProperty_ResourceType | kDAVProperty_CreationDate | kDAVProperty_LastModified | kDAVProperty_ContentLength
+    kDAVProperty_ResourceType = (1 << 0),
+    kDAVProperty_CreationDate = (1 << 1),
+    kDAVProperty_LastModified = (1 << 2),
+    kDAVProperty_ContentLength = (1 << 3),
+    kDAVProperty_ContentType = (1 << 4),
+    kDAVProperty_DisplayName = (1 << 5),
+    kDAVProperty_Permissions = (1 << 6),
+    kDAVAllProperties = kDAVProperty_ResourceType | kDAVProperty_CreationDate | kDAVProperty_LastModified | kDAVProperty_ContentLength | kDAVProperty_ContentType | kDAVProperty_DisplayName | kDAVProperty_Permissions
 };
 
 FOUNDATION_EXPORT inline BOOL _IsMacFinder(GCDWebServerRequest* request);

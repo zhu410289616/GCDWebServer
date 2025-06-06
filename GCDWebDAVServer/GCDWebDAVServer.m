@@ -421,11 +421,24 @@ inline xmlNodePtr _XMLChildWithName(xmlNodePtr child, const xmlChar* name) {
         }
       }
 
+      if (properties & kDAVProperty_ContentType && !isDirectory) {
+          NSArray *imageType = @[@"png", @"jpeg", @"jpg", @"gif", @"heic"];
+          NSString *ext = resourcePath.pathExtension.lowercaseString;
+          if (ext && [imageType containsObject:ext]) {
+              [xmlString appendFormat:@"<D:getcontenttype>image/%@</D:getcontenttype>", ext];
+          }
+      }
+
+      if (properties & kDAVProperty_DisplayName && !isDirectory) {
+        NSString *lastPathComponent = [itemPath lastPathComponent];
+        [xmlString appendFormat:@"<D:displayname>%@</D:displayname>", lastPathComponent];
+      }
+
       if ((properties & kDAVProperty_CreationDate) && [attributes objectForKey:NSFileCreationDate]) {
         [xmlString appendFormat:@"<D:creationdate>%@</D:creationdate>", GCDWebServerFormatISO8601((NSDate*)[attributes fileCreationDate])];
       }
 
-      if ((properties & kDAVProperty_LastModified) && isFile && [attributes objectForKey:NSFileModificationDate]) {  // Last modification date is not useful for directories as it changes implicitely and 'Last-Modified' header is not provided for directories anyway
+      if ((properties & kDAVProperty_LastModified) && [attributes objectForKey:NSFileModificationDate]) {  // Last modification date is not useful for directories as it changes implicitely and 'Last-Modified' header is not provided for directories anyway
         [xmlString appendFormat:@"<D:getlastmodified>%@</D:getlastmodified>", GCDWebServerFormatRFC822((NSDate*)[attributes fileModificationDate])];
       }
 
