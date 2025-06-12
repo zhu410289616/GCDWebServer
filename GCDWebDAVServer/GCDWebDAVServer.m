@@ -423,9 +423,13 @@ inline xmlNodePtr _XMLChildWithName(xmlNodePtr child, const xmlChar* name) {
 
       if (properties & kDAVProperty_ContentType && !isDirectory) {
           NSArray *imageType = @[@"png", @"jpeg", @"jpg", @"gif", @"heic"];
+          NSArray *audioType = @[@"wav", @"m4a", @"mp3", @"aac"];
           NSString *ext = resourcePath.pathExtension.lowercaseString;
+          //TODO: 返回文件类型mime
           if (ext && [imageType containsObject:ext]) {
               [xmlString appendFormat:@"<D:getcontenttype>image/%@</D:getcontenttype>", ext];
+          } else if (ext && [audioType containsObject:ext]) {
+              [xmlString appendFormat:@"<D:getcontenttype>audio/%@</D:getcontenttype>", ext];
           }
       }
 
