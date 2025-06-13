@@ -437,6 +437,13 @@ inline xmlNodePtr _XMLChildWithName(xmlNodePtr child, const xmlChar* name) {
         NSString *lastPathComponent = [itemPath lastPathComponent];
         [xmlString appendFormat:@"<D:displayname>%@</D:displayname>", lastPathComponent];
       }
+        
+        if (properties & kDAVProperty_Permissions) {
+            NSString *lastPathComponent = [itemPath lastPathComponent];
+            if ([lastPathComponent containsString:@"Inbox"]) {
+                [xmlString appendFormat:@"<D:permissions>readonly</D:permissions>"];
+            }
+        }
 
       if ((properties & kDAVProperty_CreationDate) && [attributes objectForKey:NSFileCreationDate]) {
         [xmlString appendFormat:@"<D:creationdate>%@</D:creationdate>", GCDWebServerFormatISO8601((NSDate*)[attributes fileCreationDate])];
